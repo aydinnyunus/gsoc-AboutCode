@@ -1,4 +1,6 @@
-# gsoc-AboutCode
+PDF'te kayma var onu düzelt
+https://www.eclipse.org/community/eclipse_newsletter/2019/december/6.php
+Her Phase için kaç gün süreceğini yaz
 
 # 1. About Me
 
@@ -12,13 +14,15 @@
 
 * *Twitter:* [https://twitter.com/aydinnyunuss](https://twitter.com/aydinnyunuss)
 
+* *Blog:* [https://medium.com/@sockpuppets](https://medium.com/@sockpuppets)
+
 * *Timezone:* UTC+03:00 (ISTANBUL)
 
 ## 1.2. Background and programming experience
 
-I am a third year student of the Istanbul Ticaret University (Turkey), pursuing a degree in Computer Engineering. I originally started programming in C/C++ in my first year of middle school, later moving on to Python, Golang, PHP and HTML/CSS/JavaScript. I mainly working on Python and Golang, generally focusing personal projects. I primarily use [IntelliJ Pycharm](https://www.jetbrains.com/python/) for Python development and IntelliJ Products for other developments. 
+I am a third year student of the Istanbul Ticaret University (Turkey), pursuing a degree in Computer Engineering. I originally started programming in C/C++ in my first year of middle school, later moving on to Python, Golang, PHP and HTML/CSS/JavaScript. I mainly working on Python and Golang, generally focusing personal projects. I primarily use [IntelliJ Pycharm](https://www.jetbrains.com/python/) for Python development and IntelliJ Products for other developments. Also I'm doing Bug Bounty on my free time. You can check my Hall of Fames on my [Website.](http://sockpuppets.ninja/)
 
-I am familiar with Python’s core features, Web frameworks (Django, Dash), API development. I’ve previously worked in StrixEye (which is a Cyber Security Start Up) , worked with YARA, MODSecurity, Golang for 1 year.
+I am familiar with Python’s core features, Web frameworks (Django, Dash), API development. I’ve previously worked in StrixEye (which is a Cyber Security Start Up) , worked with YARA, MODSecurity, Golang for 1 year. You can check my personal projects on [Github Page](https://github.com/aydinnyunus)
 For the Dash, I created Rocket Dashboard for getting simulteanous information about Rocket like velocity,altitude,pressure etc. and show on graph. (TeknoFest - which is Space and Technology Festival is an aviation, technology and space technology festival held in Turkey.)
 
 # 2. Proposal Information
@@ -54,6 +58,7 @@ data='{
 
 curl -X POST "$api_url" -H "$content_type" -d "$data"
 ```
+
 
 * Upload project files using cURL
 
@@ -221,9 +226,9 @@ for i in range(len(y)):
 
 *Approximate implementation time: 3 days (August 15th - August 17th)*
 
-### Phase 4: Adding Severity to VulnerableCode API
+### Phase 4: Restricting Pushing
 
-VulnerableCode Packages have Severity (class VulnerabilitySeverity). We can create function which returns CVSS score for each vulnerability and show their criticality on dashboard.
+VulnerableCode Packages have Severity (class VulnerabilitySeverity). We can create function which returns CVSS score for each vulnerability and show their criticality on dashboard. ( Or basically we can check for number of high or critical vulnerabilities)
 
 ```
 vulnerabilities/importers/nvd.py
@@ -238,6 +243,8 @@ def bulk_search(self, request):
 We can return severity scores array for each package URL and we check for CRITICAL and HIGH severity vulnerabilities for allow commit and push events. If it is MEDIUM and LOW severities, give warning for that vulnerabilities but author accepts that risk after it will be commited.
 
 ![Pipeline](2022-04-18_18-31.png)
+
+In this Example, Burp Suite Enterprise provides Severity and Confidence for checking security of the project. So I think we can integrate that feature in dashboard.
 
 ### Phase 5: Auto Update Dependencies
 I don’t think I need to convince you about the benefits of keeping your Python libraries (or other software as a matter of fact) up to date: bugs are fixed over time, potential security vulnerabilities are patched, compatibility issues may arise, etc. And the list goes on and on.
@@ -257,12 +264,74 @@ All requirements up-to-date
 *Approximate implementation time: 3 days (August 15th - August 17th)*
 
 ## SECOND IDEA
+We should add new Pipeline as "Vulnerable Code" on Scancode.io and then if author selects that Pipeline. All uploaded project is scanned by Scancode.io and checks the vulnerabilities from Vulnerable Code.
+
+### How to Add New Pipeline
+- Firstly create Python file on "./scanpipe/pipelines/<YOUR PIPELINE FILE>.py"
+- After that add this file on setup.cfg
 
 ![Pipeline](2022-04-18_19-02.png)
 
-## THIRD IDEA
-KOD ÜZERİNDEN ÇÖZÜM STEP EKLE
+```
+scancodeio_pipelines =
+    vulnerable_code = scanpipe.pipelines.vulnerable_code:VulnerableCode
+```
+- Run `docker-compose build && docker-compose up`, after that you can see your pipeline on `localhost:80/project/add`
 
+### Create Python Pipeline File
+- Add required steps
+
+```
+@classmethod
+    def steps(cls):
+        return (
+            ..
+            ..
+            cls.run_scancode,
+            cls.check_vulnerablecode,
+            ..
+            cls.make_summary_from_scan_results,
+        )
+```
+- Create Required Functions
+
+```
+def check_vulnerablecode(self):
+        """
+        Check packages are vulnerable on Vulnerable Code
+        """
+        # Send API Request to Vulnerable Code using Package URL and get the required informations about package.
+	# You can check **PseudoCode for scancode.io input to vulnerable code API** on Phase 3
+	..
+	..
+```
+
+## THIRD IDEA
+We can use Yara or ModSecurity Rules for getting Package Name, Version, Licences etc. I think it will be faster than ScanCode.io.
+	
+```
+SecRule REQUEST_BODY \
+"@rx (\d+\.)?(\d+\.)?(\*|\d+)" \
+"id:000000,\
+phase:2,\
+block,\
+t:none,t:lowercase,\
+msg:'Get Versions from Request Body',\
+```
+	
+```
+SecRule REQUEST_BODY \
+"@rx .+?(?===)" \
+"id:000001,\
+phase:2,\
+block,\
+t:none,t:lowercase,\
+msg:'Get Name from Request Body',\
+```
+
+After getting these informations we can convert it to Package URL and send Package URL to Vulnerable Code API. So In this way, we got the ScanCode.io out of the way and use ModSecurity or Yara Rules.
+
+	
 ## 2.3 Additional notes
 
 ### Fix DockerFile Latency
