@@ -239,8 +239,20 @@ We can return severity scores array for each package URL and we check for CRITIC
 
 ![Pipeline](2022-04-18_18-31.png)
 
-### Phase 5: TODO List
-We can create TODO list for how author should fix the vulnerabilities and if it's done we can tick on that items.
+### Phase 5: Auto Update Dependencies
+I don’t think I need to convince you about the benefits of keeping your Python libraries (or other software as a matter of fact) up to date: bugs are fixed over time, potential security vulnerabilities are patched, compatibility issues may arise, etc. And the list goes on and on.
+
+`pur` stands for pip update requirements and is a small Python library that can update a requirements file with a single command.
+
+`pur -r requirements.txt`
+
+Which modifies the requirements.txt with the latest versions of the libraries listed in the file. When doing so, it prints the following:
+
+```
+Updated pandas: 1.2.4 -> 1.4.1
+Updated yfinance: 0.1.63 -> 0.1.70
+All requirements up-to-date
+```
 
 *Approximate implementation time: 3 days (August 15th - August 17th)*
 
