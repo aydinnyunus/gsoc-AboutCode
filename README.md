@@ -237,6 +237,8 @@ def bulk_search(self, request):
 
 We can return severity scores array for each package URL and we check for CRITICAL and HIGH severity vulnerabilities for allow commit and push events. If it is MEDIUM and LOW severities, give warning for that vulnerabilities but author accepts that risk after it will be commited.
 
+![Pipeline](2022-04-18_18-31.png)
+
 ### Phase 5: TODO List
 We can create TODO list for how author should fix the vulnerabilities and if it's done we can tick on that items.
 
@@ -244,6 +246,7 @@ We can create TODO list for how author should fix the vulnerabilities and if it'
 
 ## SECOND IDEA
 
+![Pipeline](2022-04-18_19-02.png)
 
 ## THIRD IDEA
 KOD ÜZERİNDEN ÇÖZÜM STEP EKLE
