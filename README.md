@@ -1,7 +1,3 @@
-PDF'te kayma var onu düzelt
-https://www.eclipse.org/community/eclipse_newsletter/2019/december/6.php
-Her Phase için kaç gün süreceğini yaz
-
 # 1. About Me
 
 ## 1.1. Basic information
@@ -101,7 +97,7 @@ GET /api/projects/<PROJECT UUID>/packages/
 
 we can calculate risk score for each project or file and if risk score above the threshold, author can not push new changes to branch.
 
-https://github.com/nexB/vulnerablecode/blob/137d88a1a4eb319259330fdfe4c47dbc95808850/vulnerabilities/models.py#L84
+*Approximate implementation time: 2 days*
 
 ### Phase 2: Use VulnerableCode for Finding Vulnerabilities
 
@@ -129,7 +125,7 @@ Content-Type: application/json
 {"type":"deb","namespace":"debian","name":"curl","version":"7.50.3-1","qualifiers":{"arch":"i386","distro":"jessie"},"subpath":null,"unresolved_vulnerabilities":[],"resolved_vulnerabilities":[],"purl":"pkg:deb/debian/curl@7.50.3-1?arch=i386&distro=jessie"}
 ```
 
-*Approximate implementation time: 3 days (August 15th - August 17th)*
+*Approximate implementation time: 1 day*
 
 
 ### Phase 3: Formatting Scancode.io Output to VulnerableCode Input
@@ -224,7 +220,7 @@ for i in range(len(y)):
 ]
 ```
 
-*Approximate implementation time: 3 days (August 15th - August 17th)*
+*Approximate implementation time: 1-2 days*
 
 ### Phase 4: Restricting Pushing
 
@@ -241,6 +237,8 @@ def bulk_search(self, request):
 ```
 
 We can return severity scores array for each package URL and we check for CRITICAL and HIGH severity vulnerabilities for allow commit and push events. If it is MEDIUM and LOW severities, give warning for that vulnerabilities but author accepts that risk after it will be commited.
+
+*Approximate implementation time: 1-2 days*
 
 ![Pipeline](2022-04-18_18-31.png)
 
@@ -261,7 +259,7 @@ Updated yfinance: 0.1.63 -> 0.1.70
 All requirements up-to-date
 ```
 
-*Approximate implementation time: 3 days (August 15th - August 17th)*
+*Approximate implementation time: 1 day*
 
 ## SECOND IDEA
 We should add new Pipeline as "Vulnerable Code" on Scancode.io and then if author selects that Pipeline. All uploaded project is scanned by Scancode.io and checks the vulnerabilities from Vulnerable Code.
@@ -306,6 +304,8 @@ def check_vulnerablecode(self):
 	..
 ```
 
+*Approximate implementation time: 1-2 weeks*
+
 ## THIRD IDEA
 We can use Yara or ModSecurity Rules for getting Package Name, Version, Licences etc. I think it will be faster than ScanCode.io.
 	
@@ -330,13 +330,15 @@ msg:'Get Name from Request Body',\
 ```
 
 After getting these informations we can convert it to Package URL and send Package URL to Vulnerable Code API. So In this way, we got the ScanCode.io out of the way and use ModSecurity or Yara Rules.
+	
+*Approximate implementation time: 2-3 days*
 
 	
 ## 2.3 Additional notes
 
 ### Fix DockerFile Latency
 
-If developers change setup files for adding new functions to the applications (Scancode.io & VulnerableCode), DockerFile did not use caching for `pip install .` 
+If developers change setup files for adding new functions to the applications (Scancode.io & VulnerableCode), DockerFile did not use caching for `pip install .` But If we change lines 56-57, now Docker use caching for pip before the COPY. So did not install packages every config changes. 
 ```
 RUN pip install .
 COPY setup.cfg setup.py /app/
